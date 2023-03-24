@@ -79,18 +79,21 @@ app.get("/api/getquranpages", async (req, res, next) => {
 
     outputImages2.then(async function (outputImages) {
         for (i = 0; i < pagesArray.length; i++) {
-
-            fs.writeFile(isFull == true ? outDir + pagesArray[i] + '_full' + isDark ? '_dark.png' : '.png' : outDir + pagesArray[i] + isDark ? '_dark.png' : '.png', outputImages[i], (error) => {
-                if (error) {
-                    console.error("Error: " + error);
-                }
-            });
+          
+            fs.writeFile(isFull == true ?
+                isDark == true ? outDir + pagesArray[i] + '_full_dark.png' : outDir + pagesArray[i] + '_full.png' :
+                isDark == true ? outDir + pagesArray[i] + '_dark.png' : outDir + pagesArray[i] + '.png', outputImages[i], (error) => {
+                    if (error) {
+                        console.error("Error: " + error);
+                    }
+                });
             const fileUrl = isFull == true ?
-                isDark ? `${readerId}/${quranId}/${pagesArray[i]}_full_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}_full.png` :
-                isDark ? `${readerId}/${quranId}/${pagesArray[i]}_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}.png`;
-            if (isDark) {
-                const image = await Jimp.read('images/'+fileUrl);
-                image.invert().write(fileUrl);
+                isDark==true ? `${readerId}/${quranId}/${pagesArray[i]}_full_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}_full.png` :
+                isDark==true ? `${readerId}/${quranId}/${pagesArray[i]}_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}.png`;
+           console.log(fileUrl);
+                if (isDark ==true) {
+                const image = await Jimp.read('images/' + fileUrl);
+                image.invert().write('images/' +fileUrl);
             }
 
             imageUrls.push({
