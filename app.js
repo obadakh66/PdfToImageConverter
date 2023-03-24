@@ -6,7 +6,7 @@ var outDir = '';
 const pdfjsLib = require('pdfjs-dist');
 var pdf2img = require('pdf-img-convert');
 const path = require('path');
-const Jimp = require('jimp') ;
+const Jimp = require('jimp');
 
 
 async function getCropBox(pdfPath, pageNumber) {
@@ -72,29 +72,31 @@ app.get("/api/getquranpages", async (req, res, next) => {
         page_numbers: pagesArray, // A list of pages to render instead of all of them
         base64: false,
         scale: 3.0,
-        cropBox: cropBox ,// crop the page using the CropBox coordinates
+        cropBox: cropBox,// crop the page using the CropBox coordinates
         bgcolor: '#000000'
     }
     var outputImages2 = pdf2img.convert(pdfPath, config);
 
     outputImages2.then(async function (outputImages) {
         for (i = 0; i < pagesArray.length; i++) {
-          
-            fs.writeFile(isFull == true ? outDir + pagesArray[i] + '_full.png' : outDir + pagesArray[i] + '.png', outputImages[i], (error) => {
+
+            fs.writeFile(isFull == true ? outDir + pagesArray[i] + '_full' + isDark ? '_dark.png' : '.png' : outDir + pagesArray[i] + isDark ? '_dark.png' : '.png', outputImages[i], (error) => {
                 if (error) {
                     console.error("Error: " + error);
                 }
             });
-            const fileUrl=isFull == true ? `images/${readerId}/${quranId}/${pagesArray[i]}_full.png` : `images/${readerId}/${quranId}/${pagesArray[i]}.png`;
-             if(isDark){
-                 const image= await Jimp.read(fileUrl);
-                 image.invert().write(fileUrl);
-             }
-             
-             imageUrls.push({
-                 pageNumber: pagesArray[i],
-                 pageUrl: isFull == true ? `https://${req.get('host')}/${readerId}/${quranId}/${pagesArray[i]}_full.png` : `https://${req.get('host')}/${readerId}/${quranId}/${pagesArray[i]}.png`
-             });
+            const fileUrl = isFull == true ?
+                isDark ? `${readerId}/${quranId}/${pagesArray[i]}_full_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}_full.png` :
+                isDark ? `${readerId}/${quranId}/${pagesArray[i]}_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}.png`;
+            if (isDark) {
+                const image = await Jimp.read('images/'+fileUrl);
+                image.invert().write(fileUrl);
+            }
+
+            imageUrls.push({
+                pageNumber: pagesArray[i],
+                pageUrl: isFull == true ? `https://${req.get('host')}/${fileUrl}` : `https://${req.get('host')}/${fileUrl}`
+            });
         }
         //cacheData(cacheKey, imageUrls);
         const cacheFilePath = path.join(cacheDir, `${cacheKey}.json`);
