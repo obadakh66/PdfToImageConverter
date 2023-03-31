@@ -51,7 +51,7 @@ app.get("/api/getquranpages", async (req, res, next) => {
 
     outDir = `images/${readerId}/${quranId}/`;
     cacheDir = `cache/`;
-    const pagesArray = pageNumber == 1 ? [pageNumber, nextPage, nextPage + 1] : [previous, pageNumber, nextPage];
+    //const pagesArray = Array.from({ length: 10 }, (_, index) => index + 1); //pageNumber == 1 ? [pageNumber, nextPage, nextPage + 1] : [previous, pageNumber, nextPage];
     try {
         fs.mkdirSync(outDir, { recursive: true });
         fs.mkdirSync(cacheDir, { recursive: true });
@@ -65,48 +65,50 @@ app.get("/api/getquranpages", async (req, res, next) => {
         }
     }
     const pdfPath = isFull == true ? readerId + '/' + quranId + '_full.pdf' : readerId + '/' + quranId + '.pdf';
+    console.log(pdfPath);
     var cropBox = getCropBox(pdfPath, 120)
     const config = {
         // width: 100, //Number in px
         //height: 100, // Number in px
-        page_numbers: pagesArray, // A list of pages to render instead of all of them
+        page_numbers: [pageNumber], //pagesArray, // A list of pages to render instead of all of them
         base64: false,
-        scale: 3.0,
+        scale: 2.0,
         cropBox: cropBox,// crop the page using the CropBox coordinates
         bgcolor: '#000000'
     }
     var outputImages2 = pdf2img.convert(pdfPath, config);
-
+    console.log(outputImages2);
     outputImages2.then(async function (outputImages) {
-        for (i = 0; i < pagesArray.length; i++) {
-
-            fs.writeFile(isFull == true ?
-                isDark == true ? outDir + pagesArray[i] + '_full_dark.png' : outDir + pagesArray[i] + '_full.png' :
-                isDark == true ? outDir + pagesArray[i] + '_dark.png' : outDir + pagesArray[i] + '.png', outputImages[i], async (error) => {
-                    if (error) {
-                        console.error("Error: " + error);
-                    }
-                    if (isDark == true) {
-                        const image =await Jimp.read('images/' + fileUrl);
-                        image.invert().write('images/' + fileUrl);
-                    }
-                });
-            const fileUrl = isFull == true ?
-                isDark == true ? `${readerId}/${quranId}/${pagesArray[i]}_full_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}_full.png` :
-                isDark == true ? `${readerId}/${quranId}/${pagesArray[i]}_dark.png` : `${readerId}/${quranId}/${pagesArray[i]}.png`;
-            console.log(fileUrl);
-
-
-            imageUrls.push({
-                pageNumber: pagesArray[i],
-                pageUrl: isFull == true ? `https://${req.get('host')}/${fileUrl}` : `https://${req.get('host')}/${fileUrl}`
+        //for (i = 0; i < pagesArray.length; i++) {
+        console.log(outputImages);
+        fs.writeFile(isFull == true ?
+            isDark == true ? outDir + pageNumber + '_full_dark.png' : outDir + pageNumber + '_full.png' :
+            isDark == true ? outDir + pageNumber + '_dark.png' : outDir + pageNumber + '.png', outputImages[0], async (error) => {
+                if (error) {
+                    console.error("Error: " + error);
+                }
+                if (isDark == true) {
+                    const image = await Jimp.read('images/' + fileUrl);
+                    image.invert().write('images/' + fileUrl);
+                }
             });
-        }
-        //cacheData(cacheKey, imageUrls);
-        const cacheFilePath = path.join(cacheDir, `${cacheKey}.json`);
-        fs.writeFileSync(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), 'utf-8');
+        const fileUrl = isFull == true ?
+            isDark == true ? `${readerId}/${quranId}/${pageNumber}_full_dark.png` : `${readerId}/${quranId}/${pageNumber}_full.png` :
+            isDark == true ? `${readerId}/${quranId}/${pageNumber}_dark.png` : `${readerId}/${quranId}/${pageNumber}.png`;
+        console.log(fileUrl);
 
-        //await setCacheImages(cacheKey, imageUrls);
+
+        imageUrls.push({
+            pageNumber: pageNumber,
+            pageUrl: isFull == true ? `https://${req.get('host')}/${fileUrl}` : `https://${req.get('host')}/${fileUrl}`
+        });
+        //}
+        fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), (error) => {
+            if (error) {
+                console.error("Error: " + error);
+            }
+        });
+
         res.json({ imageUrls: imageUrls });
 
     });
