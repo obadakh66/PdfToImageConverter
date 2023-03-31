@@ -77,7 +77,7 @@ app.get("/api/getquranpages", async (req, res) => {
     };
     
     await page.render(renderContext).promise;
-    fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), (error) => {
+    fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify({ imageUrls: base64String }), (error) => {
         if (error) {
             console.error("Error: " + error);
         }
