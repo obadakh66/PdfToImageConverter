@@ -56,7 +56,7 @@ app.get("/api/getquranpages", async (req, res) => {
     console.log(pdfPath);
     const config = {
         page_numbers: [pageNumber], //pagesArray, // A list of pages to render instead of all of them
-        base64: false,
+        base64: true,
         scale: 2.0,
         bgcolor: '#000000',
         cacheDir: cacheDir,
