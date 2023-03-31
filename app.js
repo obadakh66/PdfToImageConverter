@@ -67,7 +67,7 @@ app.get("/api/getquranpages", async (req, res) => {
     outputImages2.then(async function (outputImages) {
         //for (i = 0; i < pagesArray.length; i++) {
         console.log(outputImages);
-        fs.writeFile(isFull == true ?
+       /*  fs.writeFile(isFull == true ?
             isDark == true ? outDir + pageNumber + '_full_dark.png' : outDir + pageNumber + '_full.png' :
             isDark == true ? outDir + pageNumber + '_dark.png' : outDir + pageNumber + '.png', outputImages[0], async (error) => {
                 if (error) {
@@ -83,19 +83,19 @@ app.get("/api/getquranpages", async (req, res) => {
             isDark == true ? `${readerId}/${quranId}/${pageNumber}_dark.png` : `${readerId}/${quranId}/${pageNumber}.png`;
         console.log(fileUrl);
 
-
-        imageUrls.push({
+ */
+       /*  imageUrls.push({
             pageNumber: pageNumber,
             pageUrl: isFull == true ? `https://${req.get('host')}/${fileUrl}` : `https://${req.get('host')}/${fileUrl}`
-        });
+        }); */
         //}
-        fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), (error) => {
+       /*  fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), (error) => {
             if (error) {
                 console.error("Error: " + error);
             }
-        });
+        }); */
 
-        res.json({ imageUrls: imageUrls });
+        res.json({ imageUrls: outputImages });
 
     });
 
