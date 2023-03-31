@@ -8,6 +8,7 @@ var pdf2img = require('pdf-img-convert');
 const path = require('path');
 const Jimp = require('jimp');
 const os = require('os');
+const { createCanvas, loadImage } = require('canvas');
 
 
 
@@ -62,42 +63,23 @@ app.get("/api/getquranpages", async (req, res) => {
         cacheDir: cacheDir,
         numberOfWorkers: os.cpus().length
     }
-    var outputImages2 = pdf2img.convert(pdfPath, config);
-    console.log(outputImages2);
-    outputImages2.then(async function (outputImages) {
-        //for (i = 0; i < pagesArray.length; i++) {
-        console.log(outputImages);
-       /*  fs.writeFile(isFull == true ?
-            isDark == true ? outDir + pageNumber + '_full_dark.png' : outDir + pageNumber + '_full.png' :
-            isDark == true ? outDir + pageNumber + '_dark.png' : outDir + pageNumber + '.png', outputImages[0], async (error) => {
-                if (error) {
-                    console.error("Error: " + error);
-                }
-                if (isDark == true) {
-                    const image = await Jimp.read('images/' + fileUrl);
-                    image.invert().write('images/' + fileUrl);
-                }
-            });
-        const fileUrl = isFull == true ?
-            isDark == true ? `${readerId}/${quranId}/${pageNumber}_full_dark.png` : `${readerId}/${quranId}/${pageNumber}_full.png` :
-            isDark == true ? `${readerId}/${quranId}/${pageNumber}_dark.png` : `${readerId}/${quranId}/${pageNumber}.png`;
-        console.log(fileUrl);
-
- */
-       /*  imageUrls.push({
-            pageNumber: pageNumber,
-            pageUrl: isFull == true ? `https://${req.get('host')}/${fileUrl}` : `https://${req.get('host')}/${fileUrl}`
-        }); */
-        //}
-       /*  fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify(imageUrls), (error) => {
-            if (error) {
-                console.error("Error: " + error);
-            }
-        }); */
-
-        res.json({ imageUrls: outputImages });
-
-    });
+    //var outputImages2 = pdf2img.convert(pdfPath, config);
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1.0 });
+    const canvas = createCanvas(viewport.width, viewport.height);
+    const canvasContext = canvas.getContext('2d');
+    
+    const renderContext = {
+      canvasContext,
+      viewport,
+    };
+    
+    await page.render(renderContext).promise;
+    
+    const base64String = canvas.toDataURL();
+        res.json({ imageUrls: base64String });
 
 });
 function getCachedData(cacheKey) {
