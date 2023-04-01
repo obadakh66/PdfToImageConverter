@@ -34,7 +34,7 @@ app.get("/api/getquranpages", async (req, res) => {
     const cacheKey = `${readerId}_${quranId}_${pageNumber}_${isFull}_${isDark}`;
     const cacheData = getCachedData(cacheKey);
     if (cacheData) {
-        res.json({ imageUrls: cacheData });
+        res.json(cacheData);
         return;
     }
 
