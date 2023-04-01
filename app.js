@@ -70,7 +70,8 @@ app.get("/api/getquranpages", async (req, res) => {
     const viewport = page.getViewport({ scale: 1.0 });
     const canvas = createCanvas(viewport.width, viewport.height);
     const canvasContext = canvas.getContext('2d');
-    
+    canvasContext.filter = 'invert(100%)';
+
     const renderContext = {
       canvasContext,
       viewport,
