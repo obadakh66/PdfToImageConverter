@@ -53,7 +53,7 @@ app.get("/api/getquranpages", async (req, res) => {
             return;
         }
     }
-    const pdfPath = isFull == true ? readerId + '/' + quranId + '_full.pdf' : readerId + '/' + quranId + '.pdf';
+    const pdfPath =  readerId + '/' + quranId + '.pdf';
     console.log(pdfPath);
     const config = {
         page_numbers: [pageNumber], //pagesArray, // A list of pages to render instead of all of them
@@ -68,15 +68,15 @@ app.get("/api/getquranpages", async (req, res) => {
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(pageNumber);
     const viewport = page.getViewport({ scale: 2.0 });
-    const canvas = createCanvas(viewport.width, viewport.height);
+    const canvas = createCanvas(isFull ? viewport.width : viewport.width * 0.85, viewport.height);
     const canvasContext = canvas.getContext('2d');
     canvasContext.filter = 'invert(100%)';
 
     const renderContext = {
-      canvasContext,
-      viewport,
+        canvasContext,
+        viewport,
     };
-    
+
     await page.render(renderContext).promise;
     const base64String = canvas.toDataURL();
     fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify({ imageUrls: base64String }), (error) => {
@@ -84,7 +84,7 @@ app.get("/api/getquranpages", async (req, res) => {
             console.error("Error: " + error);
         }
     });
-        res.json({ imageUrls: base64String });
+    res.json({ imageUrls: base64String });
 
 });
 function getCachedData(cacheKey) {
