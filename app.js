@@ -77,12 +77,12 @@ app.get("/api/getquranpages", async (req, res) => {
     };
     
     await page.render(renderContext).promise;
+    const base64String = canvas.toDataURL();
     fs.writeFile(`${cacheDir}/${cacheKey}.json`, JSON.stringify({ imageUrls: base64String }), (error) => {
         if (error) {
             console.error("Error: " + error);
         }
     });
-    const base64String = canvas.toDataURL();
         res.json({ imageUrls: base64String });
 
 });
