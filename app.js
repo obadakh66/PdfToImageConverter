@@ -68,7 +68,7 @@ app.get("/api/getquranpages", async (req, res) => {
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(pageNumber);
     const viewport = page.getViewport({ scale: 2.0 });
-    const canvas = createCanvas(isFull ? viewport.width : viewport.width * 0.85, viewport.height);
+    const canvas = createCanvas(isFull ? viewport.width * 0.85 : viewport.width, viewport.height);
     const canvasContext = canvas.getContext('2d');
     canvasContext.filter = 'invert(100%)';
 
